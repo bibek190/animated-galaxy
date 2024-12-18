@@ -1,9 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import GUI from "lil-gui";
-import galaxyVertexShader from "./shaders/galaxy/vertex.glsl";
-import galaxyFragmentShader from "./shaders/galaxy/fragment.glsl";
-
+import galaxyVertex from "./shaders/galaxy/galaxyVertex.glsl";
+import galaxyFragment from "./shaders/galaxy/galaxyFragment.glsl";
 /**
  * Base
  */
@@ -48,8 +47,7 @@ const generateGalaxy = () => {
 
   const positions = new Float32Array(parameters.count * 3);
   const colors = new Float32Array(parameters.count * 3);
-
-  const scales = new Float32Array(parameters.count * 1);
+  const scale = new Float32Array(parameters.count * 1);
 
   const insideColor = new THREE.Color(parameters.insideColor);
   const outsideColor = new THREE.Color(parameters.outsideColor);
@@ -91,15 +89,12 @@ const generateGalaxy = () => {
     colors[i3 + 1] = mixedColor.g;
     colors[i3 + 2] = mixedColor.b;
 
-    // scales
-    scales[i] = Math.random();
+    scale[i] = Math.random();
   }
-
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
   geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-  geometry.setAttribute("aScales", new THREE.BufferAttribute(scales, 1));
+  geometry.setAttribute("aScale", new THREE.BufferAttribute(scale, 1));
 
-  console.log(geometry);
   /**
    * Material
    */
@@ -107,13 +102,13 @@ const generateGalaxy = () => {
     depthWrite: false,
     blending: THREE.AdditiveBlending,
     vertexColors: true,
-    vertexShader: galaxyVertexShader,
-    fragmentShader: galaxyFragmentShader,
+    vertexShader: galaxyVertex,
+    fragmentShader: galaxyFragment,
     uniforms: {
       uSize: { value: 8 * renderer.getPixelRatio() },
     },
   });
-  console.log(material.color);
+
   /**
    * Points
    */
@@ -203,7 +198,8 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-// function run
+
+// Run function
 generateGalaxy();
 
 /**
